@@ -4,6 +4,8 @@ import createError from 'http-errors';
 import cors from 'cors';
 import permissionRoute from './modules/userRolesAndPermissions/permissions/permission.routes';
 import userRoleRoute from './modules/userRolesAndPermissions/userRoles/userRole.routes';
+import authRoute from './modules/auth/auth.route';
+import employeeRoute from './modules/employees/employee.route';
 import corsOption from './shared/utils/corsOptions';
 import allowedOrigins from './shared/utils/allowedOrigins';
 import sessionConfig from './shared/utils/sessionConfig';
@@ -38,8 +40,10 @@ app.get('/', async (req: Request, res: Response) => {
   res.status(200).json({ message: 'Awesome it works 🐻' });
 });
 
+app.use('/auth', authRoute);
 app.use('/api/permissions', permissionRoute);
 app.use('/api/user-roles', userRoleRoute);
+app.use('/api/employees', employeeRoute);
 
 // catch 404 and forward to error handler
 app.use((req: Request, res: Response, next: NextFunction) => {

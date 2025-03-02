@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { SquarePen, Trash2 } from "lucide-react";
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import DashboardNav from "../components/DashboardNav";
 import SlideIn from "../components/SlideIn";
-import { deleteData, fetchData } from "../utils/apiRequests";
+import { fetchData } from "../utils/apiRequests";
 import { IPermission, IRole } from "../interfaces/others";
 import CircularLoader from "../components/Loaders/Circular";
+import Modal from "../components/Modal";
 
 const UserRole = () => {
-  const queryClient = useQueryClient();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSlideOpen, setIsSlideOpen] = useState(false);
   const [formType, setFormType] = useState("");
   const [selectedData, setSelectedData] = useState<IPermission | IRole | null>(
@@ -33,30 +34,16 @@ const UserRole = () => {
     queryFn: () => fetchData("api/user-roles"),
   });
 
-  const mutation = useMutation({
-    mutationFn: (id: string, type: string) =>
-      type === "role"
-        ? deleteData(id, "api/user-roles")
-        : deleteData(id, "api/permissions"),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["permissions"] });
-    },
-    onError: (error) => {
-      console.error("Error deleting:", error);
-    },
-  });
-
-  const handleDelete = (id: string, type: string) => {
-    if (window.confirm("Are you sure you want to delete this?")) {
-      mutation.mutate(id, type);
-      return true;
-    }
-  };
-
   const openSlide = (type: string, data: IPermission | IRole | null = null) => {
     setFormType(type);
     setSelectedData(data);
     setIsSlideOpen(true);
+  };
+
+  const openModal = (type: string, data: IPermission | IRole | null = null) => {
+    setFormType(type);
+    setSelectedData(data);
+    setIsModalOpen(true);
   };
 
   if (permissionsLoading || rolesLoading) return <CircularLoader />;
@@ -116,7 +103,7 @@ const UserRole = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {rolesData &&
+                  {rolesData.length > 0 &&
                     rolesData.payload.map((role: IRole) => (
                       <tr key={role._id} className="text-sm">
                         <td className="py-3 px-5 border-b border-indigo-50">
@@ -159,7 +146,9 @@ const UserRole = () => {
                             </span>
                             <span className="text-red-600 hover:text-red-800 transition duration-300 cursor-pointer">
                               <Trash2
-                                onClick={() => handleDelete(role._id, "role")}
+                                onClick={() => {
+                                  openModal("delete-permission", role);
+                                }}
                               />
                             </span>
                           </div>
@@ -218,7 +207,7 @@ const UserRole = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {permissionsData &&
+                    {permissionsData.length > 0 &&
                       permissionsData.payload.map((permission: IPermission) => (
                         <tr key={permission._id} className="text-sm">
                           <td className="py-3 px-5 border-b border-indigo-50">
@@ -242,9 +231,9 @@ const UserRole = () => {
                               </span>
                               <span className="text-red-600 hover:text-red-800 transition duration-300 cursor-pointer">
                                 <Trash2
-                                  onClick={() =>
-                                    handleDelete(permission._id, "permission")
-                                  }
+                                  onClick={() => {
+                                    openModal("delete-permission", permission);
+                                  }}
                                 />
                               </span>
                             </div>
@@ -265,6 +254,14 @@ const UserRole = () => {
         onClose={() => setIsSlideOpen(false)}
         formType={formType}
         initialData={selectedData}
+      />
+
+      {/* Modal Component */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        formType={formType}
+        initialData={selectedData as IRole | IPermission | undefined}
       />
     </section>
   );
