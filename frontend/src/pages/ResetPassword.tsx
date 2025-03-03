@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -17,6 +18,8 @@ const ResetPasswordSchema = Yup.object().shape({
 });
 
 const ResetPassword: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [alert, setAlert] = useState<string | null>(null);
@@ -37,11 +40,11 @@ const ResetPassword: React.FC = () => {
       return;
     }
     try {
-      const userJson = await postOrPutData(
-        "auth/reset-password",
-        { newPassword, confirmPassword },
-        "POST"
-      );
+      const userJson = await postOrPutData({
+        url: "auth/reset-password",
+        operation: "PUT",
+        data: { paassword: newPassword, token },
+      });
       if (userJson.status === "error") {
         setError(
           Array.isArray(userJson.errors || userJson.error)
@@ -53,6 +56,7 @@ const ResetPassword: React.FC = () => {
       }
     } catch (error) {
       console.log("error", error);
+      setError("Error: Could not process data. Try again!");
     }
   };
 

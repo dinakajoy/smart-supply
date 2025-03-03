@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
 import config from 'config';
 import { omit } from 'lodash';
-import { getUser } from '../employees/employee.service';
+import { Employee } from '../employees/employees.model';
 import { IDecodedToken } from '../../shared/interfaces';
 import logger from '../../shared/utils/logger';
 import {
@@ -17,8 +17,7 @@ import {
   CustomException,
 } from '../../shared/utils/errors';
 import transporter from '../../shared/utils/emailSender';
-import { Employee } from '../employees/employees.model';
-import { IEmployee } from '../employees/employees.interface';
+import { getUser } from 'modules/employees/employee.service';
 
 export const loginController = async (
   req: Request,
@@ -27,7 +26,7 @@ export const loginController = async (
 ) => {
   const { email, password } = req.body;
   try {
-    const user = await Employee.find({ email });
+    const user = await Employee.findOne({ email });
     if (!user) {
       logger.warn('Invalid login attempt', { email });
       return next(new (InvalidCredentialsException as any)());
@@ -91,7 +90,7 @@ export const forgotPasswordController = async (
 ) => {
   const { email } = req.body;
   try {
-    const user = await Employee.find({
+    const user = await Employee.findOne({
       email,
     });
     if (!user) {
@@ -166,7 +165,7 @@ export const resetPasswordController = async (
   try {
     // Hash the received token to match the stored hashed token
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
-    const user = await Employee.find({
+    const user = await Employee.findOne({
       resetToken: hashedToken,
       resetTokenExpiry: {
         gte: new Date(), // Ensure the token hasn't expired
@@ -263,7 +262,7 @@ export const refreshTokenController = async (
       return next(new (InvalidCredentialsException as any)());
     }
 
-    const user = await Employee.find({ email: decodedToken.payload.email });
+    const user = await Employee.findOne({ email: decodedToken.payload.email });
     if (!user || !user.isActive) {
       logger.warn('Invalid user or inactive account');
       return next(new (InvalidCredentialsException as any)());

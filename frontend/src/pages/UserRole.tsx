@@ -3,10 +3,10 @@ import { SquarePen, Trash2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import DashboardNav from "../components/DashboardNav";
 import SlideIn from "../components/SlideIn";
-import { fetchData } from "../utils/apiRequests";
-import { IPermission, IRole } from "../interfaces/others";
 import CircularLoader from "../components/Loaders/Circular";
 import Modal from "../components/Modal";
+import { fetchData } from "../utils/apiRequests";
+import { IPermission, IRole } from "../interfaces/others";
 
 const UserRole = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -103,7 +103,8 @@ const UserRole = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {rolesData.length > 0 &&
+                  {rolesData &&
+                    rolesData.payload.length > 0 &&
                     rolesData.payload.map((role: IRole) => (
                       <tr key={role._id} className="text-sm">
                         <td className="py-3 px-5 border-b border-indigo-50">
@@ -113,22 +114,22 @@ const UserRole = () => {
                           <img
                             src="/material-tailwind-dashboard-react/img/team-1.jpeg"
                             alt="Romina Hadid"
-                            className="inline-block relative object-cover object-center !rounded-full w-6 h-6 rounded-md cursor-pointer border-2 border-white"
+                            className="inline-block relative object-cover object-center w-6 h-6 rounded-md cursor-pointer border-2 border-white"
                           />
                           <img
                             src="/material-tailwind-dashboard-react/img/team-2.jpeg"
                             alt="Ryan Tompson"
-                            className="inline-block relative object-cover object-center !rounded-full w-6 h-6 rounded-md cursor-pointer border-2 border-white -ml-2.5"
+                            className="inline-block relative object-cover object-center w-6 h-6 rounded-md cursor-pointer border-2 border-white -ml-2.5"
                           />
                           <img
                             src="/material-tailwind-dashboard-react/img/team-3.jpeg"
                             alt="Jessica Doe"
-                            className="inline-block relative object-cover object-center !rounded-full w-6 h-6 rounded-md cursor-pointer border-2 border-white -ml-2.5"
+                            className="inline-block relative object-cover object-center w-6 h-6 rounded-md cursor-pointer border-2 border-white -ml-2.5"
                           />
                           <img
                             src="/material-tailwind-dashboard-react/img/team-4.jpeg"
                             alt="Alexander Smith"
-                            className="inline-block relative object-cover object-center !rounded-full w-6 h-6 rounded-md cursor-pointer border-2 border-white -ml-2.5"
+                            className="inline-block relative object-cover object-center w-6 h-6 rounded-md cursor-pointer border-2 border-white -ml-2.5"
                           />
                         </td>
                         <td className="py-3 px-5 border-b border-indigo-50">
@@ -207,7 +208,8 @@ const UserRole = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {permissionsData.length > 0 &&
+                    {permissionsData &&
+                      permissionsData.payload.length > 0 &&
                       permissionsData.payload.map((permission: IPermission) => (
                         <tr key={permission._id} className="text-sm">
                           <td className="py-3 px-5 border-b border-indigo-50">

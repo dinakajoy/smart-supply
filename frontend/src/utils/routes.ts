@@ -1,8 +1,4 @@
-import {
-  faHome,
-  faUsers,
-  faUserTie,
-} from "@fortawesome/free-solid-svg-icons";
+import { faHome, faUsers, faUserTie } from "@fortawesome/free-solid-svg-icons";
 
 const menuItems = [
   {
@@ -20,28 +16,8 @@ const menuItems = [
   {
     title: "Employees",
     icon: faUsers,
-    children: [
-      {
-        title: "Employees",
-        slug: "employees",
-        path: "/employees",
-      },
-      {
-        title: "Attendance Records",
-        slug: "attendance",
-        path: "/employees/attendance",
-      },
-      {
-        title: "Performance",
-        slug: "performance",
-        path: "/employees/performance",
-      },
-      {
-        title: "Payroll",
-        slug: "payroll",
-        path: "/employees/payroll",
-      },
-    ],
+    slug: "employees",
+    path: "/employees",
   },
 ];
 

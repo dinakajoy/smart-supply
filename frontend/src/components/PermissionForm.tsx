@@ -40,7 +40,7 @@ const PermissionForm = ({ initialData }: { initialData?: IPermission }) => {
   });
 
   useEffect(() => {
-    if (msg) {
+    if (msg || error) {
       const timer = setTimeout(() => {
         setMsg(null);
         setError(null);

@@ -44,7 +44,7 @@ const UserRoleForm = ({ initialData }: { initialData?: IRole }) => {
   });
 
   useEffect(() => {
-    if (msg) {
+    if (msg || error) {
       const timer = setTimeout(() => {
         setMsg(null);
         setError(null);

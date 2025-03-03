@@ -1,10 +1,10 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import AuthLayout from "../layouts/Auth";
 import ThreeDotsLoader from "../components/Loaders/ThreeDots";
 import { postOrPutData } from "../utils/apiRequests";
-import { Link } from "react-router-dom";
 
 const ForgotPasswordSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Email is required"),
@@ -26,11 +26,11 @@ const ForgotPassword: React.FC = () => {
       return;
     }
     try {
-      const userJson = await postOrPutData(
-        "auth/forgot-password",
-        { email },
-        "POST"
-      );
+      const userJson = await postOrPutData({
+        url: "auth/forgot-password",
+        operation: "POST",
+        data: { email },
+      });
       if (userJson.status === "error") {
         setError(
           Array.isArray(userJson.errors || userJson.error)
@@ -42,6 +42,7 @@ const ForgotPassword: React.FC = () => {
       }
     } catch (error) {
       console.log("error", error);
+      setError("Error: Could not process data. Try again!");
     }
   };
 

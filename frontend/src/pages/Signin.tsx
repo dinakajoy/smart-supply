@@ -5,8 +5,8 @@ import * as Yup from "yup";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import AuthLayout from "../layouts/Auth";
-import ThreeDotsLoader from "../components/Loaders/ThreeDots";
 import { useAuthContext } from "../context/auth/AuthContext";
+import ThreeDotsLoader from "../components/Loaders/ThreeDots";
 import { postOrPutData } from "../utils/apiRequests";
 
 const SignInSchema = Yup.object().shape({
@@ -37,18 +37,17 @@ const Signin: React.FC = () => {
       return;
     }
     try {
-      const userJson = await postOrPutData(
-        "auth/login",
-        { email, password },
-        "POST"
-      );
-      if (userJson.status === "error" || userJson.errors) {
+      const userJson = await postOrPutData({
+        url: "auth/login",
+        operation: "POST",
+        data: { email, password },
+      });
+      if (userJson.status === "error") {
         setError(
           Array.isArray(userJson.errors || userJson.error)
             ? userJson.errors[0].msg || userJson.error[0].msg
             : userJson.errors || userJson.error
         );
-        return;
       } else {
         setIsAuthenticated(true);
         setCurrentUser(userJson.payload);
@@ -56,6 +55,7 @@ const Signin: React.FC = () => {
       }
     } catch (error) {
       console.log("error", error);
+      setError("Error: Could not process data. Try again!");
     }
   };
 
@@ -143,15 +143,6 @@ const Signin: React.FC = () => {
                 )}
               </button>
               <div className="text-center text-sm mt-4">
-                <p>
-                  Don't have an account?{" "}
-                  <Link
-                    to="/register"
-                    className="text-blue-500 cursor-pointer hover:underline"
-                  >
-                    Register here
-                  </Link>
-                </p>
                 <p>
                   <Link
                     to="/forgot-password"

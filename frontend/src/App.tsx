@@ -15,6 +15,7 @@ const ResetPasswordPage = lazy(() =>
 
 const Dashboard = lazy(() => reloadOnFail(() => import("./pages/Dashboard")));
 const UserRole = lazy(() => reloadOnFail(() => import("./pages/UserRole")));
+const Employees = lazy(() => reloadOnFail(() => import("./pages/Employees")));
 
 const App = () => {
   const [queryClient] = useState(() => new QueryClient());
@@ -32,6 +33,7 @@ const App = () => {
           <Route element={<DashboardLayout />}>
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="user-role" element={<UserRole />} />
+            <Route path="employees" element={<Employees />} />
           </Route>
         </Routes>
       </QueryClientProvider>

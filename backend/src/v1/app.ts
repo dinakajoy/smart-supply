@@ -19,7 +19,7 @@ declare module 'express-session' {
 
 const app: Express = express();
 
-app.use(limiter);
+// app.use(limiter);
 
 app.use((req: Request, res: Response, next: NextFunction) => {
   const { origin } = req.headers || '';

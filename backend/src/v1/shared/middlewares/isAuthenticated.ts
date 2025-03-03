@@ -2,14 +2,14 @@ import { Request, Response, NextFunction } from 'express';
 import { get } from 'lodash';
 import logger from '../utils/logger';
 import { verifyAccessToken } from '../utils/helpers';
-import { isUser } from '../services/user.service';
+import { isUser } from '../../modules/employees/employee.service';
 import {
   InvalidCredentialsException,
   NotFoundException,
   CustomException,
   UnauthorizedException,
 } from '../utils/errors';
-import { IDecodedToken } from '../interfaces/token';
+import { IDecodedToken } from '../interfaces';
 
 const isAuthenticated = async (
   req: Request,
