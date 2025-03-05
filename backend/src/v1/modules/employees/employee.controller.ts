@@ -24,9 +24,11 @@ export const createEmployeeController = async (
     const user = await Employee.create({
       data: {
         ...req.body,
+        password: '',
         mustResetPassword: true,
         isActive: true,
         createdBy: req.body.currentUserId,
+        updatedBy: req.body.currentUserId,
       },
     });
     const result = omit(user, ['password']);
@@ -72,7 +74,7 @@ export const getEmployeesController = async (
   next: NextFunction
 ) => {
   try {
-    const allUsers = await Employee.find();
+    const allUsers = await Employee.find().select('-password').lean();
     res.status(200).json({
       status: 'success',
       payload: allUsers,
@@ -92,7 +94,7 @@ export const getEmployeeController = async (
 ) => {
   try {
     const { id } = req.params;
-    const user = await Employee.find({ id });
+    const user = await Employee.find({ id }).lean();
     const result = omit(user, ['password']);
     res.status(200).json({
       status: 'success',

@@ -27,5 +27,4 @@ export const validate = (req: Request, res: Response, next: NextFunction) => {
     status: 'error',
     error: `Invalid value for ${errors.array()[0].path}`,
   });
-  return;
 };

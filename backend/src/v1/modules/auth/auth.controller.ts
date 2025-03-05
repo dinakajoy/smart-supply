@@ -120,12 +120,14 @@ export const forgotPasswordController = async (
 
     const clientUrl = config.get('environment.clientUrl') as string;
     const resetLink = `${clientUrl}/reset-password?token=${hashedToken}`;
+    const html = `<b>Hi ${user.name},</b><br/><br/><p>You requested a password reset. Click <a href="${resetLink}">here</a> to reset your password. This link is valid for 15 minutes.</p> Or copy and paste link in your browser: ${resetLink}`;
 
     const mailSent = await transporter.sendMail({
       to: email,
       subject: 'Reset Your Password',
-      html: `<b>Hi ${user.name},</b><br/><br/><p>You requested a password reset. Click <a href="${resetLink}">here</a> to reset your password. This link is valid for 15 minutes.</p> Or copy and paste link in your browser: ${resetLink}`,
+      html,
     });
+    logger.info(`ForgotPassword Email: ${html}`);
 
     if (mailSent.messageId) {
       res.status(200).json({
@@ -331,6 +333,6 @@ export const getSessionController = async (
 
   res.status(200).json({
     status: 'success',
-    payload: omit(user, ['password', 'role']),
+    payload: omit(user, ['password']),
   });
 };

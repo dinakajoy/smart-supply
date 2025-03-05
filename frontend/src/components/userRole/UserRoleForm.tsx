@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { IRole } from "../interfaces/others";
-import { postOrPutData } from "../utils/apiRequests";
+import { IPermission, IRole } from "../../interfaces/others";
+import { postOrPutData } from "../../utils/apiRequests";
 
 const RoleSchema = Yup.object().shape({
   slug: Yup.string().required("Slug is required"),
@@ -14,19 +14,19 @@ const RoleSchema = Yup.object().shape({
     .required("At least one permission is required"),
 });
 
-const availablePermissions = [
-  { key: "view_users", name: "View Users" },
-  { key: "edit_users", name: "Edit Users" },
-  { key: "delete_users", name: "Delete Users" },
-];
-
-const UserRoleForm = ({ initialData }: { initialData?: IRole }) => {
+const UserRoleForm = ({
+  initialData,
+  permissions,
+}: {
+  initialData?: IRole;
+  permissions: IPermission[];
+}) => {
   const queryClient = useQueryClient();
 
   const [error, setError] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
 
-  const mutation = useMutation({
+  const mutation = useMutation<{ message: string }, Error, IRole>({
     mutationFn: (newData) =>
       postOrPutData({
         url: initialData
@@ -128,7 +128,7 @@ const UserRoleForm = ({ initialData }: { initialData?: IRole }) => {
             <div>
               <label className="block text-gray-600">Permissions</label>
               <div className="border border-gray-300 rounded-lg p-2 mt-1">
-                {availablePermissions.map((perm) => (
+                {permissions.map((perm: IPermission) => (
                   <label key={perm.key} className="flex items-center space-x-2">
                     <input
                       type="checkbox"

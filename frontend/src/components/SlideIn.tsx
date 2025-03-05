@@ -1,19 +1,17 @@
-import { useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowUp } from "lucide-react";
-import UserRoleForm from "./UserRoleForm";
-import PermissionForm from "./PermissionForm";
 
 const SlideUserStats = ({
   isOpen,
   onClose,
   formType,
-  initialData,
+  children,
 }: {
   isOpen: boolean;
   onClose: () => void;
   formType: string;
-  initialData: any;
+  children: ReactNode;
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -65,7 +63,7 @@ const SlideUserStats = ({
         animate={{ x: 0 }}
         exit={{ x: "100%" }}
         transition={{ type: "spring", stiffness: 100, damping: 15 }}
-        className="fixed top-0 right-0 w-full h-full bg-indigo-50 shadow-lg z-50 overflow-auto md:w-3/6"
+        className="fixed top-0 right-0 w-full h-full bg-gray-50 shadow-lg z-50 overflow-auto md:w-3/6"
       >
         {/* Sticky header */}
         <div className="sticky top-0 w-full bg-indigo-100 p-4 flex justify-between items-center z-50">
@@ -79,15 +77,7 @@ const SlideUserStats = ({
             ✖
           </button>
         </div>
-        {formType === "create-user-role" && <UserRoleForm />}
-        {formType === "create-permission" && <PermissionForm />}
-        {formType === "edit-permission" && (
-          <PermissionForm initialData={initialData} />
-        )}
-        {formType === "edit-user-role" && (
-          <UserRoleForm initialData={initialData} />
-        )}
-
+        {children}
         {isVisible && (
           <motion.button
             onClick={scrollToTop}

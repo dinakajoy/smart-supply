@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { UserRoleType } from "../constants";
-import { postOrPutData } from "../utils/apiRequests";
-import { IPermission } from "../interfaces/others";
+import { UserRoleType } from "../../constants";
+import { postOrPutData } from "../../utils/apiRequests";
+import { IPermission } from "../../interfaces/others";
 
 // Validation Schema using Yup
 const PermissionSchema = Yup.object().shape({
@@ -22,7 +22,7 @@ const PermissionForm = ({ initialData }: { initialData?: IPermission }) => {
   const [error, setError] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
 
-  const mutation = useMutation({
+  const mutation = useMutation<{ message: string }, Error, IPermission>({
     mutationFn: (newData) =>
       postOrPutData({
         url: initialData

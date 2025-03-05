@@ -1,17 +1,15 @@
-
-import DeleteConfirmation from "./DeleteConfirmation";
-import { IPermission, IRole } from "../interfaces/others";
+import { ReactNode } from "react";
 
 const Modal = ({
   isOpen,
   onClose,
   formType,
-  initialData,
+  children,
 }: {
   isOpen: boolean;
   onClose: () => void;
   formType: string;
-  initialData?: IPermission | IRole;
+  children: ReactNode;
 }) => {
   if (!isOpen) return null;
 
@@ -31,15 +29,7 @@ const Modal = ({
             &times;
           </button>
         </div>
-        <div className="py-4 my-4">
-          {(formType === "delete-permission" ||
-            formType === "delete-user-role") && (
-            <DeleteConfirmation
-              initialData={initialData as IPermission | IRole}
-              close={() => onClose()}
-            />
-          )}
-        </div>
+        <div className="py-4 my-4">{children}</div>
         <div className="flex justify-end mt-4">
           <button
             onClick={onClose}

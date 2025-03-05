@@ -7,8 +7,12 @@ import CircularLoader from "../components/Loaders/Circular";
 import Modal from "../components/Modal";
 import { fetchData } from "../utils/apiRequests";
 import { IPermission, IRole } from "../interfaces/others";
+import UserRoleForm from "../components/userRole/UserRoleForm";
+import PermissionForm from "../components/userRole/PermissionForm";
+import DeleteConfirmation from "../components/userRole/DeleteConfirmation";
 
 const UserRole = () => {
+  const [name, setName] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSlideOpen, setIsSlideOpen] = useState(false);
   const [formType, setFormType] = useState("");
@@ -148,7 +152,9 @@ const UserRole = () => {
                             <span className="text-red-600 hover:text-red-800 transition duration-300 cursor-pointer">
                               <Trash2
                                 onClick={() => {
-                                  openModal("delete-permission", role);
+                                  setName(role.role);
+                                  setSelectedData(role);
+                                  openModal("delete-role", role);
                                 }}
                               />
                             </span>
@@ -234,6 +240,8 @@ const UserRole = () => {
                               <span className="text-red-600 hover:text-red-800 transition duration-300 cursor-pointer">
                                 <Trash2
                                   onClick={() => {
+                                    setName(permission.name);
+                                    setSelectedData(permission);
                                     openModal("delete-permission", permission);
                                   }}
                                 />
@@ -255,16 +263,39 @@ const UserRole = () => {
         isOpen={isSlideOpen}
         onClose={() => setIsSlideOpen(false)}
         formType={formType}
-        initialData={selectedData}
-      />
+      >
+        {formType === "create-user-role" && (
+          <UserRoleForm permissions={permissionsData.payload} />
+        )}
+        {formType === "edit-user-role" && (
+          <UserRoleForm
+            initialData={selectedData as IRole | undefined}
+            permissions={permissionsData.payload}
+          />
+        )}
+        {formType === "create-permission" && <PermissionForm />}
+        {formType === "edit-permission" && (
+          <PermissionForm
+            initialData={selectedData as IPermission | undefined}
+          />
+        )}
+      </SlideIn>
 
       {/* Modal Component */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         formType={formType}
-        initialData={selectedData as IRole | IPermission | undefined}
-      />
+      >
+        {(formType === "delete-permission" || formType === "delete-role") && (
+          <DeleteConfirmation
+            id={selectedData?._id || ""}
+            name={name}
+            type={formType}
+            close={() => setIsModalOpen(false)}
+          />
+        )}
+      </Modal>
     </section>
   );
 };
