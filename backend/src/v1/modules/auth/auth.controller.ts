@@ -2,7 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
 import config from 'config';
 import { omit } from 'lodash';
-import { Employee } from '../employees/employees.model';
+import { Employee } from '../employees/employee.model';
+import { getUser } from '../employees/employee.service';
 import { IDecodedToken } from '../../shared/interfaces';
 import logger from '../../shared/utils/logger';
 import {
@@ -17,7 +18,6 @@ import {
   CustomException,
 } from '../../shared/utils/errors';
 import transporter from '../../shared/utils/emailSender';
-import { getUser } from 'modules/employees/employee.service';
 
 export const loginController = async (
   req: Request,

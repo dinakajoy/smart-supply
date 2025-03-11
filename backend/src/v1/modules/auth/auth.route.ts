@@ -1,5 +1,4 @@
 import * as express from 'express';
-import acountLimiter from '../../shared/middlewares/rateLimiterForRoutes';
 import {
   loginValidation,
   forgetPasswordValidation,
@@ -14,6 +13,7 @@ import {
   logoutController,
   getSessionController,
 } from './auth.controller';
+import acountLimiter from '../../shared/middlewares/rateLimiterForRoutes';
 
 const router = express.Router();
 

@@ -2,14 +2,14 @@
 import { Request, Response, NextFunction } from 'express';
 import { get } from 'lodash';
 import dotenv from 'dotenv-safe';
+import { getUser } from '../../modules/employees/employee.service';
 import { verifyAccessToken } from '../utils/helpers';
 import {
   InvalidCredentialsException,
   NotFoundException,
   UnauthorizedException,
 } from '../utils/errors';
-import { IDecodedToken } from '../interfaces/token';
-import { getUser } from 'api/services/user.service';
+import { IDecodedToken } from '../interfaces';
 
 dotenv.config();
 
@@ -36,7 +36,7 @@ const isAuthorized =
       return next(new (InvalidCredentialsException as any)());
     }
     req.body.currentUserId = user._id;
-    const authorized = allowedRoles.includes(user.role);
+    const authorized = allowedRoles.includes(user.role.role);
     if (!authorized) {
       return next(new (UnauthorizedException as any)());
     }

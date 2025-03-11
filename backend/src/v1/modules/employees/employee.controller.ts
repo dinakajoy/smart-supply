@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import { omit } from 'lodash';
 import config from 'config';
+import { Employee } from './employee.model';
 import logger from '../../shared/utils/logger';
 import { signAccessToken } from '../../shared/utils/helpers';
 import { CustomException } from '../../shared/utils/errors';
 import transporter from '../../shared/utils/emailSender';
 import { ICreateToken } from '../../shared/interfaces';
-import { Employee } from './employees.model';
 
 export const createEmployeeController = async (
   req: Request,
@@ -21,8 +21,7 @@ export const createEmployeeController = async (
   }
 
   try {
-    const user = await Employee.create({
-      data: {
+    const newEmployee = new Employee({
         ...req.body,
         password: '',
         mustResetPassword: true,
@@ -30,8 +29,9 @@ export const createEmployeeController = async (
         createdBy: req.body.currentUserId,
         updatedBy: req.body.currentUserId,
       },
-    });
-    const result = omit(user, ['password']);
+    );
+    await newEmployee.save();
+    const result = omit(newEmployee, ['password']);
 
     const createToken: ICreateToken = {
       employeeInfo: {
@@ -63,8 +63,8 @@ export const createEmployeeController = async (
     });
     return;
   } catch (error: any) {
-    logger.error(error.message);
-    return next(new (CustomException as any)(500, 'Operation unsuccessful'));
+    logger.error(`Error creating employee, data: ${req.body}`, error.message);
+    return next(new (CustomException as any)(500, 'Error creating employee'));
   }
 };
 
@@ -78,12 +78,13 @@ export const getEmployeesController = async (
     res.status(200).json({
       status: 'success',
       payload: allUsers,
-      message: 'Operation successful',
     });
     return;
   } catch (error: any) {
-    logger.error(error.message);
-    return next(new (CustomException as any)(500, 'Operation unsuccessful'));
+    logger.error('Error fetching employees', error.message);
+    return next(
+      new (CustomException as any)(500, 'Error fetching employees')
+    );
   }
 };
 
@@ -103,8 +104,10 @@ export const getEmployeeController = async (
     });
     return;
   } catch (error: any) {
-    logger.error(error.message);
-    return next(new (CustomException as any)(500, 'Operation unsuccessful'));
+    logger.error('Error fetching employee', error.message);
+    return next(
+      new (CustomException as any)(500, 'Error fetching employee')
+    );
   }
 };
 
@@ -113,11 +116,18 @@ export const updateEmployeeController = async (
   res: Response,
   next: NextFunction
 ) => {
+  const { id } = req.params;
   try {
-    const user = await Employee.findByIdAndUpdate(req.params.id, {
+    const user = await Employee.findByIdAndUpdate(id, {
       ...req.body,
       updatedBy: req.body.currentUserId,
     });
+    if (!user) {
+      res
+        .status(404)
+        .json({ status: 'error', message: 'Employee not found' });
+      return;
+    }
     const result = omit(user, ['password']);
     res.status(200).json({
       status: 'success',
@@ -126,8 +136,11 @@ export const updateEmployeeController = async (
     });
     return;
   } catch (error: any) {
-    logger.error(error.message);
-    return next(new (CustomException as any)(500, 'Operation unsuccessful'));
+    logger.error(
+      `Error updating employee, ID: ${id}, ${req.body}`,
+      error.message
+    );
+    return next(new (CustomException as any)(500, 'Error updating employee'));
   }
 };
 
@@ -137,21 +150,30 @@ export const removeEmployeeController = async (
   next: NextFunction
 ) => {
   try {
-    await Employee.findByIdAndUpdate(req.params.id, {
+    const user = await Employee.findByIdAndUpdate(req.params.id, {
       isActive: false,
       mustResetPassword: true,
       resetToken: null,
       resetTokenExpiry: null,
       updatedBy: req.body.currentUserId,
     });
+    if (!user) {
+      res
+        .status(404)
+        .json({ status: 'error', message: 'Employee not found' });
+      return;
+    }
     res.status(200).json({
       status: 'success',
       message: 'Employee deleted successfully 🚀',
     });
     return;
   } catch (error: any) {
-    logger.error(error.message);
-    return next(new (CustomException as any)(500, 'Operation unsuccessful'));
+    logger.error(
+      `Error deleting employee, ID: ${req.params.id}, ${req.body}`,
+      error.message
+    );
+    return next(new (CustomException as any)(500, 'Error deleting employee'));
   }
 };
 
@@ -168,7 +190,10 @@ export const deleteAccountController = async (
     });
     return;
   } catch (error: any) {
-    logger.error(error.message);
-    return next(new (CustomException as any)(500, 'Operation unsuccessful'));
+    logger.error(
+      `Error deleting employee, ID: ${req.params.id}, ${req.body}`,
+      error.message
+    );
+    return next(new (CustomException as any)(500, 'Error deleting employee'));
   }
 };

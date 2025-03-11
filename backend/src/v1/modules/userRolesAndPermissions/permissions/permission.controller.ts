@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
+import { Permission } from './permission.model';
 import logger from '../../../shared/utils/logger';
 import { CustomException } from '../../../shared/utils/errors';
-import { Permission } from './permission.model';
 
 export const createPermissionController = async (
   req: Request,

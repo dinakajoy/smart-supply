@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
+import { Role } from './userRole.model';
 import logger from '../../../shared/utils/logger';
 import { CustomException } from '../../../shared/utils/errors';
-import { Role } from './userRole.model';
 
 export const createUserRoleController = async (
   req: Request,

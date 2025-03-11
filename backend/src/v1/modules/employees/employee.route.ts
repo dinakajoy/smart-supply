@@ -1,5 +1,4 @@
 import * as express from 'express';
-import acountLimiter from '../../shared/middlewares/rateLimiterForRoutes';
 import { validation, validate } from './employee.validation';
 import {
   createEmployeeController,
@@ -9,6 +8,7 @@ import {
   removeEmployeeController,
   deleteAccountController,
 } from './employee.controller';
+import acountLimiter from '../../shared/middlewares/rateLimiterForRoutes';
 
 const router = express.Router();
 

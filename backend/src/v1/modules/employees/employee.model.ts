@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { IEmployee, IRole } from './employees.interface';
+import { IEmployee, IRole } from './employee.interface';
 
 const RoleSchema = new Schema<IRole>({
   label: { type: String, required: true },

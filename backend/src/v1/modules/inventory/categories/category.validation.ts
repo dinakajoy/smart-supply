@@ -1,17 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { body, validationResult } from 'express-validator';
 
-export const validation = () => [
+export const categoryValidation = () => [
   body('name').isLength({ min: 3 }).trim().escape(),
-  body('email').isEmail().normalizeEmail(),
-  body('phone')
-    .isMobilePhone(['en-NG'])
-    .isLength({ min: 11, max: 11 })
-    .trim()
-    .escape(),
-  body('gender').isIn(['Male', 'Female']).trim().escape(),
-  body('department').isLength({ min: 2 }).trim().escape(),
-  body('role').isLength({ min: 2 }).trim().escape(),
 ];
 
 export const validate = (req: Request, res: Response, next: NextFunction) => {
@@ -23,4 +14,5 @@ export const validate = (req: Request, res: Response, next: NextFunction) => {
     status: 'error',
     error: `Invalid value for ${errors.array()[0].path}`,
   });
+  return;
 };

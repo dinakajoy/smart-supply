@@ -1,5 +1,5 @@
 import { NextFunction } from 'express';
-import { Employee } from './employees.model';
+import { Employee } from './employee.model';
 import logger from '../../shared/utils/logger';
 import { CustomException } from '../../shared/utils/errors';
 

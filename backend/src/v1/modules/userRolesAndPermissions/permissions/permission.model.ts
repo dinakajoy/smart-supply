@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import { IPermission } from "./permission.interface";
 
 const PermissionSchema = new Schema<IPermission>({
