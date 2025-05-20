@@ -10,7 +10,7 @@ export const createSupplierController = async (
   next: NextFunction
 ) => {
   const { email } = req.body;
-  const existingSupplier = await isSupplier(email, next);
+  const existingSupplier = await isSupplier(email);
   if (existingSupplier) {
     return next(new (CustomException as any)(400, 'Supplier already exist'));
   }
@@ -112,7 +112,7 @@ export const updateSupplierController = async (
   }
 };
 
-export const removeSupplierController = async (
+export const deactivateSupplierController = async (
   req: Request,
   res: Response,
   next: NextFunction

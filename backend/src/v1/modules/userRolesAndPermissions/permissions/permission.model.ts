@@ -7,7 +7,7 @@ const PermissionSchema = new Schema<IPermission>({
   description: { type: String },
   group: {
     type: String,
-    enum: ["User Role", "Permissions", "Employees"],
+    enum: ["User Role", "Permissions", "Users"],
     required: true,
   },
 });

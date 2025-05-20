@@ -10,7 +10,7 @@ export const createCategoryController = async (
   next: NextFunction
 ) => {
   const { name } = req.body;
-  const existingCategory = await isCategory(name, next);
+  const existingCategory = await isCategory(name);
   if (existingCategory) {
     return next(new (CustomException as any)(400, 'Category already exist'));
   }

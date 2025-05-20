@@ -25,6 +25,10 @@ export const validate = (req: Request, res: Response, next: NextFunction) => {
   }
   res.status(422).json({
     status: 'error',
-    error: `Invalid value for ${errors.array()[0].path}`,
+    errors: errors.array().map((err: any) => ({
+      field: err.path,
+      message: err.msg,
+    })),
   });
+  return;
 };

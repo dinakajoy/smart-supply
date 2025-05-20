@@ -1,10 +1,10 @@
-export interface IEmployeeInfo {
+export interface IUserInfo {
   email: string;
   role: string;
 }
 
 export interface ICreateToken {
-  employeeInfo: IEmployeeInfo;
+  userInfo: IUserInfo;
   isRefreshToken: boolean;
 }
 
@@ -14,7 +14,15 @@ export interface IVerifyToken {
 }
 
 export interface IDecodedToken {
-  payload: IEmployeeInfo;
+  payload: IUserInfo;
   iat: number;
   exp: number;
+}
+
+export interface CustomRequest extends Request {
+  user?: {
+    id?: string;
+    email?: string;
+    role?: string;
+  };
 }

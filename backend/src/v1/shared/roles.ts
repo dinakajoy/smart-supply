@@ -13,7 +13,7 @@
     title: "Human Resource Manager",
     slug: "human-resources",
     responsibilities: [
-      "Manage employee records",
+      "Manage user records",
       "Handle payroll and benefits",
       "Track attendance and leave requests",
       "Recruitment and performance reviews"

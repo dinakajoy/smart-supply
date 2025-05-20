@@ -15,7 +15,8 @@ const Modal = ({
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
-      <div className="bg-indigo-300 rounded-2xl shadow-lg p-6 w-full max-w-xl">
+      <div className="fixed inset-0 bg-black opacity-50"></div>
+      <div className="bg-white rounded-2xl shadow-lg p-6 w-full max-w-xl z-10">
         <div className="flex justify-between items-center border-b pb-3">
           {formType && (
             <h2 className="text-xl font-semibold">

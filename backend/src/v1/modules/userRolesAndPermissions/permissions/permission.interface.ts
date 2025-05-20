@@ -4,5 +4,5 @@ export interface IPermission extends Document {
   key: string;
   name: string;
   description: string;
-  group: "User Role" | "Permissions" | "Employees";
+  group: "User Role" | "Permissions" | "Users";
 }

@@ -2,8 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
 import config from 'config';
 import { omit } from 'lodash';
-import { Employee } from '../employees/employee.model';
-import { getUser } from '../employees/employee.service';
+import { User } from '../users/user.model';
+import { getUser } from '../users/user.service';
 import { IDecodedToken } from '../../shared/interfaces';
 import logger from '../../shared/utils/logger';
 import {
@@ -26,7 +26,7 @@ export const loginController = async (
 ) => {
   const { email, password } = req.body;
   try {
-    const user = await Employee.findOne({ email });
+    const user = await User.findOne({ email });
     if (!user) {
       logger.warn('Invalid login attempt', { email });
       return next(new (InvalidCredentialsException as any)());
@@ -36,41 +36,43 @@ export const loginController = async (
     if (user.mustResetPassword) {
       res.status(400).json({
         status: 'error',
-        message: 'Please reset your password before logging in.',
+        message: 'Please reset your password before you can log in.',
       });
       return;
     }
 
-    const isCorrectPassword = await comparePassword(
-      password,
-      user.password,
-      next
-    );
+    const isCorrectPassword = await comparePassword(password, user.password);
     if (!isCorrectPassword) {
       logger.warn('Invalid password attempt', { email });
       return next(new (InvalidCredentialsException as any)());
     }
 
     // Generate tokens
-    const employeeInfo: { email: string; role: string } = {
+    const userInfo: { email: string; role: string } = {
       email: user.email,
       role: user.role.role,
     };
     const { accessToken, refreshToken } = await generateTokens(
-      employeeInfo,
+      userInfo,
       true,
-      true,
-      next
+      true
     );
 
     res.cookie('accessToken', accessToken, {
       httpOnly: process.env.NODE_ENV === 'production',
       secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
       maxAge: 15 * 60 * 1000, // 15 minutes
     });
     req.session.isAuthenticated = refreshToken;
 
-    const result = omit(user, ['password']);
+    const result = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role?.role,
+      organizationId: user.organizationId,
+    };
     res.status(200).json({
       status: 'success',
       payload: result,
@@ -90,7 +92,7 @@ export const forgotPasswordController = async (
 ) => {
   const { email } = req.body;
   try {
-    const user = await Employee.findOne({
+    const user = await User.findOne({
       email,
     });
     if (!user) {
@@ -109,7 +111,7 @@ export const forgotPasswordController = async (
       .update(resetToken)
       .digest('hex');
 
-    await Employee.findByIdAndUpdate(
+    await User.findByIdAndUpdate(
       user._id,
       {
         resetToken: hashedToken,
@@ -167,7 +169,7 @@ export const resetPasswordController = async (
   try {
     // Hash the received token to match the stored hashed token
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
-    const user = await Employee.findOne({
+    const user = await User.findOne({
       resetToken: hashedToken,
       resetTokenExpiry: {
         gte: new Date(), // Ensure the token hasn't expired
@@ -195,7 +197,7 @@ export const resetPasswordController = async (
     const hashedPassword = await hashPassword(password, next);
 
     // Update the user's password and remove the reset token and expiry
-    await Employee.findByIdAndUpdate(
+    await User.findByIdAndUpdate(
       user._id,
       {
         password: hashedPassword,
@@ -255,28 +257,27 @@ export const refreshTokenController = async (
       return next(new (InvalidCredentialsException as any)());
     }
 
-    const decodedToken = (await verifyAccessToken(
-      { token: isAuthenticated, isRefreshToken: true },
-      next
-    )) as IDecodedToken;
+    const decodedToken = (await verifyAccessToken({
+      token: isAuthenticated,
+      isRefreshToken: true,
+    })) as IDecodedToken;
     if (!decodedToken) {
       logger.warn('Invalid or expired refresh token');
       return next(new (InvalidCredentialsException as any)());
     }
 
-    const user = await Employee.findOne({ email: decodedToken.payload.email });
+    const user = await User.findOne({ email: decodedToken.payload.email });
     if (!user || !user.isActive) {
       logger.warn('Invalid user or inactive account');
       return next(new (InvalidCredentialsException as any)());
     }
 
     // Generate tokens
-    const employeeInfo = { email: user.email, role: user.role.role };
+    const userInfo = { email: user.email, role: user.role.role };
     const { accessToken, refreshToken } = await generateTokens(
-      employeeInfo,
+      userInfo,
       true,
-      true,
-      next
+      true
     );
     res.cookie('accessToken', accessToken, {
       httpOnly: process.env.NODE_ENV === 'production',
@@ -312,17 +313,17 @@ export const getSessionController = async (
     return;
   }
 
-  const decodedToken = (await verifyAccessToken(
-    { token, isRefreshToken: false },
-    next
-  )) as IDecodedToken;
+  const decodedToken = (await verifyAccessToken({
+    token,
+    isRefreshToken: false,
+  })) as IDecodedToken;
   if (!decodedToken) {
     logger.warn('Invalid or expired refresh token');
     return next(new (InvalidCredentialsException as any)());
   }
 
   const userEmail = decodedToken.payload?.email;
-  const user = await getUser(userEmail, next);
+  const user = await getUser(userEmail);
   if (!user) {
     next(new (InvalidCredentialsException as any)());
   }

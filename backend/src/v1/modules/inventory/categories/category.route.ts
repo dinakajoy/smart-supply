@@ -8,19 +8,40 @@ import {
   deleteCategoryController,
 } from './category.controller';
 import acountLimiter from '../../../shared/middlewares/rateLimiterForRoutes';
+import isAuthorized from '../../../shared/middlewares/isAuthorized';
+import isAuthenticated from '../../../shared/middlewares/isAuthenticated';
 
 const router = express.Router();
 
 router.post(
   '/',
   acountLimiter,
+  isAuthorized(['admin', 'inventory-manager']),
   categoryValidation(),
   validate,
   createCategoryController
 );
-router.get('/', getCategoriesController);
-router.get('/:id', getCategoryController);
-router.put('/:id', categoryValidation(), validate, updateCategoryController);
-router.delete('/:id', deleteCategoryController);
+
+router.get('/', isAuthenticated, getCategoriesController);
+
+router.get(
+  '/:id',
+  isAuthorized(['admin', 'inventory-manager']),
+  getCategoryController
+);
+
+router.put(
+  '/:id',
+  isAuthorized(['admin', 'inventory-manager']),
+  categoryValidation(),
+  validate,
+  updateCategoryController
+);
+
+router.delete(
+  '/:id',
+  isAuthorized(['admin', 'inventory-manager']),
+  deleteCategoryController
+);
 
 export default router;

@@ -1,46 +1,45 @@
 import { Request, Response, NextFunction } from 'express';
 import { omit } from 'lodash';
 import config from 'config';
-import { Employee } from './employee.model';
+import { User } from './user.model';
 import logger from '../../shared/utils/logger';
 import { signAccessToken } from '../../shared/utils/helpers';
 import { CustomException } from '../../shared/utils/errors';
 import transporter from '../../shared/utils/emailSender';
 import { ICreateToken } from '../../shared/interfaces';
 
-export const createEmployeeController = async (
+export const createUserController = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   const { email } = req.body;
-  const existingUser = await Employee.find({ email });
+  const existingUser = await User.find({ email });
 
   if (existingUser) {
-    return next(new (CustomException as any)(400, 'Employee already exist'));
+    return next(new (CustomException as any)(400, 'User already exist'));
   }
 
   try {
-    const newEmployee = new Employee({
-        ...req.body,
-        password: '',
-        mustResetPassword: true,
-        isActive: true,
-        createdBy: req.body.currentUserId,
-        updatedBy: req.body.currentUserId,
-      },
-    );
-    await newEmployee.save();
-    const result = omit(newEmployee, ['password']);
+    const newUser = new User({
+      ...req.body,
+      password: '',
+      mustResetPassword: true,
+      isActive: true,
+      createdBy: req.body.currentUserId,
+      updatedBy: req.body.currentUserId,
+    });
+    await newUser.save();
+    const result = omit(newUser, ['password']);
 
     const createToken: ICreateToken = {
-      employeeInfo: {
+      userInfo: {
         email: result.email,
         role: result.role.role,
       },
       isRefreshToken: false,
     };
-    const accessToken = await signAccessToken(createToken, next);
+    const accessToken = await signAccessToken(createToken);
 
     const clientUrl = config.get('environment.clientUrl') as string;
     const resetLink = `${clientUrl}/reset-password?token=${accessToken}`;
@@ -59,43 +58,41 @@ export const createEmployeeController = async (
     res.status(201).json({
       status: 'success',
       payload: result,
-      message: 'Employee created successfully 🚀',
+      message: 'User created successfully 🚀',
     });
     return;
   } catch (error: any) {
-    logger.error(`Error creating employee, data: ${req.body}`, error.message);
-    return next(new (CustomException as any)(500, 'Error creating employee'));
+    logger.error(`Error creating user, data: ${req.body}`, error.message);
+    return next(new (CustomException as any)(500, 'Error creating user'));
   }
 };
 
-export const getEmployeesController = async (
+export const getUsersController = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const allUsers = await Employee.find().select('-password').lean();
+    const allUsers = await User.find().select('-password').lean();
     res.status(200).json({
       status: 'success',
       payload: allUsers,
     });
     return;
   } catch (error: any) {
-    logger.error('Error fetching employees', error.message);
-    return next(
-      new (CustomException as any)(500, 'Error fetching employees')
-    );
+    logger.error('Error fetching users', error.message);
+    return next(new (CustomException as any)(500, 'Error fetching users'));
   }
 };
 
-export const getEmployeeController = async (
+export const getUserController = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
     const { id } = req.params;
-    const user = await Employee.find({ id }).lean();
+    const user = await User.find({ id }).lean();
     const result = omit(user, ['password']);
     res.status(200).json({
       status: 'success',
@@ -104,53 +101,49 @@ export const getEmployeeController = async (
     });
     return;
   } catch (error: any) {
-    logger.error('Error fetching employee', error.message);
-    return next(
-      new (CustomException as any)(500, 'Error fetching employee')
-    );
+    logger.error('Error fetching user', error.message);
+    return next(new (CustomException as any)(500, 'Error fetching user'));
   }
 };
 
-export const updateEmployeeController = async (
+export const updateUserController = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   const { id } = req.params;
   try {
-    const user = await Employee.findByIdAndUpdate(id, {
+    const user = await User.findByIdAndUpdate(id, {
       ...req.body,
       updatedBy: req.body.currentUserId,
     });
     if (!user) {
-      res
-        .status(404)
-        .json({ status: 'error', message: 'Employee not found' });
+      res.status(404).json({ status: 'error', message: 'User not found' });
       return;
     }
     const result = omit(user, ['password']);
     res.status(200).json({
       status: 'success',
       payload: result,
-      message: 'Employee updated successfully 🚀',
+      message: 'User updated successfully 🚀',
     });
     return;
   } catch (error: any) {
     logger.error(
-      `Error updating employee, ID: ${id}, ${req.body}`,
+      `Error updating user, ID: ${id}, ${req.body}`,
       error.message
     );
-    return next(new (CustomException as any)(500, 'Error updating employee'));
+    return next(new (CustomException as any)(500, 'Error updating user'));
   }
 };
 
-export const removeEmployeeController = async (
+export const deactivateUserController = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const user = await Employee.findByIdAndUpdate(req.params.id, {
+    const user = await User.findByIdAndUpdate(req.params.id, {
       isActive: false,
       mustResetPassword: true,
       resetToken: null,
@@ -158,22 +151,20 @@ export const removeEmployeeController = async (
       updatedBy: req.body.currentUserId,
     });
     if (!user) {
-      res
-        .status(404)
-        .json({ status: 'error', message: 'Employee not found' });
+      res.status(404).json({ status: 'error', message: 'User not found' });
       return;
     }
     res.status(200).json({
       status: 'success',
-      message: 'Employee deleted successfully 🚀',
+      message: 'User deleted successfully 🚀',
     });
     return;
   } catch (error: any) {
     logger.error(
-      `Error deleting employee, ID: ${req.params.id}, ${req.body}`,
+      `Error deleting user, ID: ${req.params.id}, ${req.body}`,
       error.message
     );
-    return next(new (CustomException as any)(500, 'Error deleting employee'));
+    return next(new (CustomException as any)(500, 'Error deleting user'));
   }
 };
 
@@ -183,17 +174,17 @@ export const deleteAccountController = async (
   next: NextFunction
 ) => {
   try {
-    await Employee.findByIdAndDelete(req.params.id);
+    await User.findByIdAndDelete(req.params.id);
     res.status(200).json({
       status: 'success',
-      message: 'Employee deleted successfully 🚀',
+      message: 'User deleted successfully 🚀',
     });
     return;
   } catch (error: any) {
     logger.error(
-      `Error deleting employee, ID: ${req.params.id}, ${req.body}`,
+      `Error deleting user, ID: ${req.params.id}, ${req.body}`,
       error.message
     );
-    return next(new (CustomException as any)(500, 'Error deleting employee'));
+    return next(new (CustomException as any)(500, 'Error deleting user'));
   }
 };

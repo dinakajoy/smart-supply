@@ -14,6 +14,7 @@ import {
   getSessionController,
 } from './auth.controller';
 import acountLimiter from '../../shared/middlewares/rateLimiterForRoutes';
+import isAuthenticated from '../../shared/middlewares/isAuthenticated';
 
 const router = express.Router();
 
@@ -35,12 +36,13 @@ router.post(
 
 router.put(
   '/reset-password',
+  isAuthenticated,
   resetPasswordValidation(),
   validate,
   resetPasswordController
 );
 
-router.get('/logout', logoutController);
+router.get('/logout', isAuthenticated, logoutController);
 
 router.get('/refresh', acountLimiter, refreshTokenController);
 

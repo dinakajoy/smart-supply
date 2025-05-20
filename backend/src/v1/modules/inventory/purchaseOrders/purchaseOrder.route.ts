@@ -1,5 +1,7 @@
 import * as express from 'express';
 import acountLimiter from '../../../shared/middlewares/rateLimiterForRoutes';
+import isAuthorized from '../../../shared/middlewares/isAuthorized';
+import isAuthenticated from '../../../shared/middlewares/isAuthenticated';
 import { purchaseOrderValidation, validate } from './purchaseOrder.validation';
 import {
   createPurchaseOrderController,
@@ -14,18 +16,28 @@ const router = express.Router();
 router.post(
   '/',
   acountLimiter,
+  isAuthorized(['admin', 'inventory-manager', 'procurement-manager']),
   purchaseOrderValidation(),
   validate,
   createPurchaseOrderController
 );
-router.get('/', getPurchaseOrdersController);
-router.get('/:id', getPurchaseOrderController);
+
+router.get('/', isAuthenticated, getPurchaseOrdersController);
+
+router.get(
+  '/:id',
+  isAuthorized(['admin', 'inventory-manager', 'procurement-manager']),
+  getPurchaseOrderController
+);
+
 router.put(
   '/:id',
+  isAuthorized(['admin', 'inventory-manager', 'procurement-manager']),
   purchaseOrderValidation(),
   validate,
   updatePurchaseOrderController
 );
-router.delete('/:id', deletePurchaseOrderController);
+
+router.delete('/:id', isAuthorized(['admin']), deletePurchaseOrderController);
 
 export default router;

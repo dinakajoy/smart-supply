@@ -12,6 +12,7 @@ export const validation = () => [
   body('gender').isIn(['Male', 'Female']).trim().escape(),
   body('department').isLength({ min: 2 }).trim().escape(),
   body('role').isLength({ min: 2 }).trim().escape(),
+  body('organizationId').isMongoId().withMessage('Invalid organization ID'),
 ];
 
 export const validate = (req: Request, res: Response, next: NextFunction) => {
@@ -21,6 +22,10 @@ export const validate = (req: Request, res: Response, next: NextFunction) => {
   }
   res.status(422).json({
     status: 'error',
-    error: `Invalid value for ${errors.array()[0].path}`,
+    errors: errors.array().map((err: any) => ({
+      field: err.path,
+      message: err.msg,
+    })),
   });
+  return;
 };

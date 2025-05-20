@@ -56,7 +56,8 @@ const SlideUserStats = ({
   if (!isOpen) return null;
 
   return (
-    <>
+    <div className="fixed inset-0 z-50">
+      <div className="fixed inset-0 bg-black opacity-50"></div>
       <motion.div
         ref={containerRef}
         initial={{ x: "100%" }}
@@ -91,7 +92,7 @@ const SlideUserStats = ({
           </motion.button>
         )}
       </motion.div>
-    </>
+    </div>
   );
 };
 

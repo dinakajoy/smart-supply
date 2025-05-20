@@ -10,7 +10,7 @@ export const createProductController = async (
   next: NextFunction
 ) => {
   const { sku } = req.body;
-  const existingProduct = await isProduct(sku, next);
+  const existingProduct = await isProduct(sku);
   if (existingProduct) {
     return next(new (CustomException as any)(400, 'Product already exist'));
   }

@@ -8,19 +8,31 @@ import {
   deleteUserRoleController,
 } from './userRole.controller';
 import acountLimiter from '../../../shared/middlewares/rateLimiterForRoutes';
+import isAuthorized from '../../../shared/middlewares/isAuthorized';
 
 const router = express.Router();
 
 router.post(
   '/',
   acountLimiter,
+  isAuthorized(['admin']),
   userRoleValidation(),
   validate,
   createUserRoleController
 );
-router.get('/', getUserRolesController);
-router.get('/:id', getUserRoleController);
-router.put('/:id', userRoleValidation(), validate, updateUserRoleController);
-router.delete('/:id', deleteUserRoleController);
+
+router.get('/', isAuthorized(['admin']), getUserRolesController);
+
+router.get('/:id', isAuthorized(['admin']), getUserRoleController);
+
+router.put(
+  '/:id',
+  isAuthorized(['admin']),
+  userRoleValidation(),
+  validate,
+  updateUserRoleController
+);
+
+router.delete('/:id', isAuthorized(['admin']), deleteUserRoleController);
 
 export default router;

@@ -5,13 +5,14 @@ export interface IRole {
   role: string;
 }
 
-export interface IEmployee extends Document {
+export interface IUser extends Document {
   name: string;
   email: string;
   phone: string;
   gender: string;
   department: string;
   role: IRole;
+  organizationId: string;
   password: string;
   mustResetPassword: boolean;
   isActive: boolean;

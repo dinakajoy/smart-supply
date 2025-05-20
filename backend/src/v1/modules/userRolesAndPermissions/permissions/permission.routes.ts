@@ -8,19 +8,31 @@ import {
   deletePermissionController,
 } from './permission.controller';
 import acountLimiter from '../../../shared/middlewares/rateLimiterForRoutes';
+import isAuthorized from '../../../shared/middlewares/isAuthorized';
 
 const router = express.Router();
 
 router.post(
   '/',
   acountLimiter,
+  isAuthorized(['admin']),
   permissionValidation(),
   validate,
   createPermissionController
 );
-router.get('/', getPermissionsController);
-router.get('/:id', getPermissionController);
-router.put('/:id', permissionValidation(), validate, updatePermissionController);
-router.delete('/:id', deletePermissionController);
+
+router.get('/', isAuthorized(['admin']), getPermissionsController);
+
+router.get('/:id', isAuthorized(['admin']), getPermissionController);
+
+router.put(
+  '/:id',
+  isAuthorized(['admin']),
+  permissionValidation(),
+  validate,
+  updatePermissionController
+);
+
+router.delete('/:id', isAuthorized(['admin']), deletePermissionController);
 
 export default router;
